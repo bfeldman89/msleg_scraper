@@ -34,8 +34,9 @@ def get_diff(new_record_id, new_tweet_id):
                      media_ids=res['media_id'], in_reply_to_status_id=new_tweet_id)
 
 
-def scrape_cmte_schedules(quiet=True):
+def scrape_cmte_schedules(data):
     t0 = time.time()
+    outcomes = []
     records = airtab.search('status', 'current')
     for record in records:
         this_dict = {}
@@ -68,6 +69,7 @@ def scrape_cmte_schedules(quiet=True):
             airtab.update(record['id'], fields={'status': 'old'})
             # NOW LETS TWEET IT
             msg = f"The #msleg {this_dict['variable']} was updated on {this_dict['last printed']}"
+            outcomes.append(msg)
             with open(tw_fn, 'rb') as photo:
                 response = tw.upload_media(media=photo)
             tweet = tw.update_status(status=msg, media_ids=[
@@ -77,16 +79,18 @@ def scrape_cmte_schedules(quiet=True):
             send2trash.send2trash(tw_fn)
             get_diff(new_r['id'], this_dict['twitter'])
         else:
-            if not quiet:
-                print(
-                    f"the {record['fields']['variable']} is still the version from {record['fields']['last printed']}")
-    t1 = time.time()
-    if not quiet:
-        print(f'msleg cmte scraper is 👌. It took {round(t1 - t0, 2)} seconds.')
+            outcomes.append(
+                f"the {record['fields']['variable']} is still the version from {record['fields']['last printed']}")
+    outcomes.append(f'msleg cmte scraper is 👌. It took {round(time.time() - t0, 2)} seconds.')
+    data['value2'] = '\n'.join(outcomes)
 
 
 def main():
-    scrape_cmte_schedules(quiet=False)
+    data = {'value1': 'msleg_scraper.py'}
+    scrape_cmte_schedules(data)
+    data['value3'] = 'success'
+    ifttt_event_url = os.environ['IFTTT_WEBHOOKS_URL'].format('code_completed')
+    requests.post(ifttt_event_url, json=data)
 
 
 if __name__ == "__main__":
