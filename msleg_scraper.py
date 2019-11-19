@@ -25,7 +25,7 @@ def get_diff(new_record_id, new_tweet_id):
     old_str = this_record['fields']['old string'].replace('\n', ' $ ')
     diff = html_diff(old_str, new_str).replace('$', '<br />')
     diff_fn = f"{this_record['id']}.jpg"
-    html_string = f"<!DOCTYPE html>\n<html>\n<head>\n    <meta charset='utf-8'>\n    <link rel='stylesheet' href='/Users/blakefeldman/botfeldman89/output/diffs/styles.css'>\n</head>\n<body><p>{diff}</p>\n</body>\n</html>"
+    html_string = f"<!DOCTYPE html><html><head><meta charset='utf-8'><link rel='stylesheet' href='/Users/blakefeldman/code/msleg_scraper/output/diffs/styles.css'></head><body><p>{diff}</p></body></html>"
     css = f"/{os.getenv('HOME')}/code/msleg_scraper/output/diffs/styles.css"
     imgkit.from_string(html_string, diff_fn, css=css)
     with open(diff_fn, 'rb') as diff_pic:
