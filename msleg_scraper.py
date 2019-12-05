@@ -25,13 +25,23 @@ def get_diff(new_record_id, new_tweet_id):
     old_str = this_record['fields']['old string'].replace('\n', ' $ ')
     diff = html_diff(old_str, new_str).replace('$', '<br />')
     diff_fn = f"{this_record['id']}.jpg"
-    html_string = f"<!DOCTYPE html><html><head><meta charset='utf-8'><link rel='stylesheet' href='/Users/blakefeldman/code/msleg_scraper/output/diffs/styles.css'></head><body><p>{diff}</p></body></html>"
-    css = f"/{os.getenv('HOME')}/code/msleg_scraper/output/diffs/styles.css"
+    html_string = f"""<html lang=\"en\">
+    <head>
+        <meta charset=\"utf-8\">
+        <link rel=\"stylesheet\" href=\"../style.css\">
+    </head>
+    <body>
+        <p>
+        {diff}
+        </p>
+    </body>\n</html >"""
+    css = f"/{os.getenv('HOME')}/code/msleg_scraper/output/diffs/style.css"
     imgkit.from_string(html_string, diff_fn, css=css)
     with open(diff_fn, 'rb') as diff_pic:
         res = tw.upload_media(media=diff_pic)
     tw.update_status(status='testing diff',
-                     media_ids=res['media_id'], in_reply_to_status_id=new_tweet_id)
+                     media_ids=res['media_id'],
+                     in_reply_to_status_id=new_tweet_id)
 
 
 def scrape_cmte_schedules(data):
@@ -81,7 +91,8 @@ def scrape_cmte_schedules(data):
         else:
             outcomes.append(
                 f"the {record['fields']['variable']} is still the version from {record['fields']['last printed']}")
-    outcomes.append(f'msleg cmte scraper is 👌. It took {round(time.time() - t0, 2)} seconds.')
+    outcomes.append(
+        f'msleg cmte scraper is 👌. It took {round(time.time() - t0, 2)} seconds.')
     data['value2'] = '\n'.join(outcomes)
 
 
