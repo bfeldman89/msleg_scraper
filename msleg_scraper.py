@@ -93,14 +93,14 @@ def scrape_cmte_schedules(data):
                 f"the {record['fields']['variable']} is still the version from {record['fields']['last printed']}")
     outcomes.append(
         f'msleg cmte scraper is 👌. It took {round(time.time() - t0, 2)} seconds.')
-    data['value2'] = '\n'.join(outcomes)
+    data['Value2'] = '\n'.join(outcomes)
 
 
 def main():
-    data = {'value1': 'msleg_scraper.py'}
+    data = {'Value1': 'msleg_scraper.py'}
     scrape_cmte_schedules(data)
-    data['value3'] = 'success'
-    ifttt_event_url = os.environ['IFTTT_WEBHOOKS_URL'].format('code_completed')
+    data['Value3'] = 'success'
+    ifttt_event_url = os.environ['IFTTT_WEBHOOKS_URL'].format('msleg_scraper')
     requests.post(ifttt_event_url, json=data)
 
 
