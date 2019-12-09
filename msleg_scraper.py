@@ -9,16 +9,10 @@ from simplediff import html_diff
 import imgkit
 from airtable import Airtable
 
-airtab = Airtable(os.environ['msleg_db'], 'log',
-                  os.environ['AIRTABLE_API_KEY'])
-
-airtab_log = Airtable(os.environ['log_db'],
-                      'log', os.environ['AIRTABLE_API_KEY'])
-
-tw = Twython(os.environ['TWITTER_APP_KEY'],
-             os.environ['TWITTER_APP_SECRET'],
-             os.environ['TWITTER_OAUTH_TOKEN'],
-             os.environ['TWITTER_OAUTH_TOKEN_SECRET'])
+airtab = Airtable(os.environ['msleg_db'], 'log', os.environ['AIRTABLE_API_KEY'])
+airtab_log = Airtable(os.environ['log_db'], 'log', os.environ['AIRTABLE_API_KEY'])
+tw = Twython(os.environ['TWITTER_APP_KEY'], os.environ['TWITTER_APP_SECRET'],
+             os.environ['TWITTER_OAUTH_TOKEN'], os.environ['TWITTER_OAUTH_TOKEN_SECRET'])
 
 
 def wrap_it_up(function, t0, new, total):
@@ -51,9 +45,7 @@ def get_diff(new_record_id, new_tweet_id):
     imgkit.from_string(html_string, diff_fn, css=css)
     with open(diff_fn, 'rb') as diff_pic:
         res = tw.upload_media(media=diff_pic)
-    tw.update_status(status='testing diff',
-                     media_ids=res['media_id'],
-                     in_reply_to_status_id=new_tweet_id)
+    tw.update_status(status='testing diff', media_ids=res['media_id'], in_reply_to_status_id=new_tweet_id)
 
 
 def scrape_cmte_schedules():
