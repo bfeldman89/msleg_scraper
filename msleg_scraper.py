@@ -12,10 +12,22 @@ from airtable import Airtable
 airtab = Airtable(os.environ['msleg_db'], 'log',
                   os.environ['AIRTABLE_API_KEY'])
 
+airtab_log = Airtable(os.environ['log_db'],
+                      'log', os.environ['AIRTABLE_API_KEY'])
+
 tw = Twython(os.environ['TWITTER_APP_KEY'],
              os.environ['TWITTER_APP_SECRET'],
              os.environ['TWITTER_OAUTH_TOKEN'],
              os.environ['TWITTER_OAUTH_TOKEN_SECRET'])
+
+
+def wrap_it_up(function, t0, new, total):
+    this_dict = {'module': 'msleg_scraper.py'}
+    this_dict['function'] = function
+    this_dict['duration'] = round((time.time() - t0) / 60, 2)
+    this_dict['total'] = total
+    this_dict['new'] = new
+    airtab_log.insert(this_dict, typecast=True)
 
 
 def get_diff(new_record_id, new_tweet_id):
@@ -44,8 +56,8 @@ def get_diff(new_record_id, new_tweet_id):
                      in_reply_to_status_id=new_tweet_id)
 
 
-def scrape_cmte_schedules(data):
-    t0 = time.time()
+def scrape_cmte_schedules():
+    t0, i = time.time(), 0
     outcomes = []
     records = airtab.search('status', 'current')
     for record in records:
@@ -55,6 +67,7 @@ def scrape_cmte_schedules(data):
         this_dict['last printed'] = lines[3].strip().replace(
             'Printed as of ', '')
         if this_dict['last printed'] != record['fields']['last printed']:
+            i += 1
             # SAVE IT AS IMAGE
             tw_fn = record['fields']['variable'].lower().replace(
                 ' ', '_') + '.jpg'
@@ -87,21 +100,13 @@ def scrape_cmte_schedules(data):
             this_dict['twitter'] = str(tweet['id'])
             new_r = airtab.insert(this_dict)
             send2trash.send2trash(tw_fn)
+            # NOW LETS REPLY TWEET THE DIFF
             get_diff(new_r['id'], this_dict['twitter'])
-        else:
-            outcomes.append(
-                f"the {record['fields']['variable']} is still the version from {record['fields']['last printed']}")
-    outcomes.append(
-        f'msleg cmte scraper is 👌. It took {round(time.time() - t0, 2)} seconds.')
-    data['Value2'] = '\n'.join(outcomes)
+    wrap_it_up('scrape_cmte_schedules', t0, i, 2)
 
 
 def main():
-    data = {'Value1': 'msleg_scraper.py'}
-    scrape_cmte_schedules(data)
-    data['Value3'] = 'success'
-    ifttt_event_url = os.environ['IFTTT_WEBHOOKS_URL'].format('msleg_scraper')
-    requests.post(ifttt_event_url, json=data)
+    scrape_cmte_schedules()
 
 
 if __name__ == "__main__":
