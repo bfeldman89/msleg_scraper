@@ -41,11 +41,11 @@ def get_diff(new_record_id, new_tweet_id):
         {diff}
         </p>
     </body>\n</html >"""
-    css = f"/{os.getenv('HOME')}/code/msleg_scraper/output/diffs/style.css"
+    css = '/Users/blakefeldman/code/msleg_scraper/style.css'
     imgkit.from_string(html_string, diff_fn, css=css)
     with open(diff_fn, 'rb') as diff_pic:
         res = tw.upload_media(media=diff_pic)
-    tw.update_status(status='testing diff', media_ids=res['media_id'], in_reply_to_status_id=new_tweet_id)
+    tw.update_status(status='cmte. schedule diff', media_ids=res['media_id'], in_reply_to_status_id=new_tweet_id)
 
 
 def scrape_cmte_schedules():

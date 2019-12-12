@@ -2,11 +2,11 @@
     font-family: Merriweather;
     font-style: normal;
     font-weight: normal;
-    src: url('Merriweather-Regular.ttf') format("truetype");
+    src: url('/Users/blakefeldman/code/msleg_scraper/Merriweather-Regular.ttf') format("truetype");
 }
 
 body {
-    background: lightgray url('paper_fibers.png') repeat;
+    background: lightgray url('/Users/blakefeldman/code/msleg_scraper/paper_fibers.png') repeat;
     font-family: Merriweather;
     font-size: 16px;
 }
