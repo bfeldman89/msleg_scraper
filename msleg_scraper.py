@@ -2,26 +2,14 @@
 import os
 import time
 import requests
-from twython import Twython
 from PIL import Image
 import send2trash
 from simplediff import html_diff
 import imgkit
-from airtable import Airtable
 
-airtab = Airtable(os.environ['msleg_db'], 'log', os.environ['AIRTABLE_API_KEY'])
-airtab_log = Airtable(os.environ['log_db'], 'log', os.environ['AIRTABLE_API_KEY'])
-tw = Twython(os.environ['TWITTER_APP_KEY'], os.environ['TWITTER_APP_SECRET'],
-             os.environ['TWITTER_OAUTH_TOKEN'], os.environ['TWITTER_OAUTH_TOKEN_SECRET'])
+from common import airtab_msleg as airtab, tw, wrap_from_module
 
-
-def wrap_it_up(function, t0, new, total):
-    this_dict = {'module': 'msleg_scraper.py'}
-    this_dict['function'] = function
-    this_dict['duration'] = round((time.time() - t0) / 60, 2)
-    this_dict['total'] = total
-    this_dict['new'] = new
-    airtab_log.insert(this_dict, typecast=True)
+wrap_it_up = wrap_from_module('msleg_scraper.py')
 
 
 def get_diff(new_record_id, new_tweet_id):
@@ -60,6 +48,7 @@ def scrape_cmte_schedules():
             'Printed as of ', '')
         if this_dict['last printed'] != record['fields']['last printed']:
             i += 1
+
             # SAVE IT AS IMAGE
             tw_fn = record['fields']['variable'].lower().replace(
                 ' ', '_') + '.jpg'
@@ -69,6 +58,7 @@ def scrape_cmte_schedules():
             cropped_img = img.crop((0, 0, 640, img.size[1]))
             cropped_img.save(tw_fn)
             time.sleep(2)
+
             # SCRAPE ALL THE DATA
             this_dict['old string'] = record['fields']['string']
             this_dict['url'] = record['fields']['url']
@@ -80,8 +70,10 @@ def scrape_cmte_schedules():
                 "________________________________________________________________________________\r\nLEGEND: WNM = Will Not Meet, TBA = To Be Announced, \r\n    BC = Before Convening, AA = After Adjournment,\r\n    AR = After Recess", "")
             this_dict['diff'] = html_diff(
                 record['fields']['string'], this_dict['string'])
+
             # NOW WE CAN UPDATE THE NO LONGER CURRENT RECORD TO `OLD`
             airtab.update(record['id'], fields={'status': 'old'})
+
             # NOW LETS TWEET IT
             msg = f"The #msleg {this_dict['variable']} was updated on {this_dict['last printed']}"
             outcomes.append(msg)
@@ -92,9 +84,11 @@ def scrape_cmte_schedules():
             this_dict['twitter'] = str(tweet['id'])
             new_r = airtab.insert(this_dict)
             send2trash.send2trash(tw_fn)
+
             # NOW LETS REPLY TWEET THE DIFF
             get_diff(new_r['id'], this_dict['twitter'])
-    wrap_it_up('scrape_cmte_schedules', t0, i, 2)
+
+    wrap_it_up(t0, new=i, total=2, function='scrape_cmte_schedules')
 
 
 def main():
