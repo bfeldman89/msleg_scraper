@@ -22,7 +22,7 @@ def get_diff(new_record_id, new_tweet_id):
     html_string = f"""<html lang=\"en\">
     <head>
         <meta charset=\"utf-8\">
-        <link rel=\"stylesheet\" href=\"../style.css\">
+        <link rel=\"stylesheet\" href=\"/Users/blakefeldman/code/msleg_scraper/style.css\">
     </head>
     <body>
         <p>
