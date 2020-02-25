@@ -28,7 +28,6 @@ def update_3xp_bills():
             airtable.update(record['id'], this_dict)
         else:
             pass
-        time.sleep(.5)
     print(str(i) + ' bills were of interest')
 
 
