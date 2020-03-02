@@ -1,4 +1,4 @@
-#!/usr/bin/env /python
+# !/usr/local/bin/python3.6
 """This module provides a function for shipping logs to Airtable."""
 import os
 import time
@@ -6,6 +6,8 @@ from airtable import Airtable
 from twython import Twython
 
 airtab_msleg = Airtable(os.environ['msleg_db'], 'log', os.environ['AIRTABLE_API_KEY'])
+
+airtab_agendas = Airtable(os.environ['msleg_db'], 'cmte_agendas', os.environ['AIRTABLE_API_KEY'])
 
 airtab_log = Airtable(base_key=os.environ['log_db'],
                       table_name='log',
