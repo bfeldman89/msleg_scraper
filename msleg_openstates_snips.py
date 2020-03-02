@@ -96,6 +96,7 @@ def update_3xp_bills():
             this_dict['py_actions_count'] = len(x['actions'])
             this_dict['py_last_action'] = last_action['action']
             this_dict['py_last_action_date'] = last_action['date'][:10]
+            this_dict['updated_at'] = x['updated_at'].isoformat()
             airtable.update(record['id'], this_dict)
         else:
             pass
@@ -104,17 +105,37 @@ def update_3xp_bills():
 
 def initial_3xp_scrapes():
     airtable = Airtable('appw0DSPkfcrhmzmi', 'legislation', os.environ['AIRTABLE_API_KEY'])
-    records = airtable.get_all(view='Grid 6', fields=['py_bill_id', 'session'])
+    records = airtable.get_all(view='py_2020 copy', fields=['py_bill_id', 'session', 'date_of_outcome'])
     for record in records:
-        time.sleep(1)
         try:
             x = pyopenstates.get_bill(state='ms', term=record['fields']['session'], bill_id=record['fields']['py_bill_id'])
+            time.sleep(1)
         except pyopenstates.NotFound as err:
             print(err)
             continue
         last_action = x['actions'][len(x['actions'])-1]
         this_dict = {}
+        this_dict['short_title'] = x['title']
         this_dict['py_actions_count'] = len(x['actions'])
         this_dict['py_last_action'] = last_action['action']
         this_dict['py_last_action_date'] = last_action['date'][:10]
+        this_dict['updated_at'] = x['updated_at'].isoformat()
         airtable.update(record['id'], this_dict, typecast=True)
+
+
+# def update_3xp_bills_v2():
+airtable = Airtable('appw0DSPkfcrhmzmi', 'legislation', os.environ['AIRTABLE_API_KEY'])
+records = airtable.get_all(view='py_2020 copy', fields=['py_bill_id', 'session'])
+for record in records:
+    x = pyopenstates.get_bill(state='ms', term=record['fields']['session'], bill_id=record['fields']['py_bill_id'])
+    for sponsor in x['sponsors']:
+        py_cosponsors = []
+        if sponsor['type'] == 'primary':
+            this_dict['primary_sponsor_raw'] = sponsor['name']
+        else:
+            py_cosponsors.append(sponsor['name'])
+    this_dict = {}
+    this_dict['py_cosponsors'] = ','.join(py_cosponsors)
+    this_dict['updated_at'] = x['updated_at'].isoformat()
+    airtable.update(record['id'], this_dict, typecast=True)
+    time.sleep(1)
