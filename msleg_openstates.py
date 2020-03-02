@@ -1,6 +1,5 @@
 # !/usr/bin/env python3
 import os
-import time
 from datetime import date, timedelta
 from airtable import Airtable
 import pyopenstates
