@@ -23,19 +23,20 @@ def extract_information():
         this_pdf = PdfFileReader(f)
         this_dict['number_of_pages'] = this_pdf.getNumPages()
         information = dict(this_pdf.getDocumentInfo())
-        this_dict['author'] = information.get('/Author')
-        this_dict['software_used'] = information.get('/Creator')
-        this_dict['modification_datetime'] = information.get('/ModDate')
-        this_dict['creation_datetime'] = information.get('/CreationDate')
         this_dict['p1_txt'] = this_pdf.getPage(0).extractText()
-        this_dict['raw_datetime'] = this_dict['p1_txt'].splitlines()[5].strip()
-        this_dict['pdf'] = [{"url": url}]
-        matching_record = airtab.match('raw_datetime', this_dict['raw_datetime'])
-        new_record = airtab.insert(this_dict, typecast=True)
-        if matching_record:
-            return
-        else:
-            return new_record['id']
+    this_dict['author'] = information.get('/Author')
+    this_dict['creator'] = information.get('/Creator')
+    this_dict['modification_datetime'] = information.get('/ModDate')
+    this_dict['creation_datetime'] = information.get('/CreationDate')
+    this_dict['producer'] = information.get('/Producer')
+    this_dict['raw_datetime'] = this_dict['p1_txt'].splitlines()[5].strip()
+    this_dict['pdf'] = [{"url": url}]
+    matching_record = airtab.match('raw_datetime', this_dict['raw_datetime'])
+    new_record = airtab.insert(this_dict, typecast=True)
+    if matching_record:
+        return
+    else:
+        return new_record['id']
 
 
 def get_images():
