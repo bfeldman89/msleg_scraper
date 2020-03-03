@@ -29,7 +29,12 @@ def extract_information():
     this_dict['modification_datetime'] = information.get('/ModDate')
     this_dict['creation_datetime'] = information.get('/CreationDate')
     this_dict['producer'] = information.get('/Producer')
-    this_dict['raw_datetime'] = this_dict['p1_txt'].splitlines()[5].strip()
+
+    # this_dict['raw_datetime'] = this_dict['p1_txt'].splitlines()[5].strip()
+    s = this_dict['p1_txt'].find('Agendas') + 7
+    e = this_dict['p1_txt'].find('Please') - 6
+    this_dict['raw_datetime'] = this_dict['p1_txt'][s:e].strip().replace('\n', '')
+
     this_dict['pdf'] = [{"url": url}]
     matching_record = airtab.match('raw_datetime', this_dict['raw_datetime'])
     new_record = airtab.insert(this_dict, typecast=True)
