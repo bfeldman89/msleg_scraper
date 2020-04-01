@@ -4,9 +4,17 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+pylint = "*"
 
 [packages]
 airtable-python-wrapper = "*"
+pyopenstates = "*"
+pdf2image = "*"
+PyPDF2 = "*"
+twython = "*"
+Send2Trash = "*"
+simplediff = "*"
+imgkit = "*"
 
 [requires]
 python_version = "3.8"
