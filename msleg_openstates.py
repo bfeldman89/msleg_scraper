@@ -1,4 +1,4 @@
-# !/usr/bin/env python3
+# !/usr/bin/env python
 import os
 from datetime import date, timedelta
 from airtable import Airtable

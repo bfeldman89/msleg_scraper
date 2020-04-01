@@ -1,4 +1,4 @@
-# !/usr/local/bin/python3.6
+#!/usr/bin/env python
 """This module provides a function for shipping logs to Airtable."""
 import os
 import time

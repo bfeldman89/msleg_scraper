@@ -1,4 +1,4 @@
-# !/usr/local/bin/python3.6
+#!/usr/bin/env python
 import io
 import os
 import time
