@@ -80,15 +80,17 @@ def get_ppl():
             airtable.insert(this_dict, typecast=True)
 
 
-def update_3xp_bills():
-    airtable = Airtable('appw0DSPkfcrhmzmi', 'legislation', os.environ['AIRTABLE_API_KEY'])
+def update_3xp_bills_v1():
+    # this is no longer used in `msleg_openstates.py`
+    # update_3xp_bills_v2() is more efficient
+    airtab = Airtable('appw0DSPkfcrhmzmi', 'legislation', os.environ['AIRTABLE_API_KEY'])
     yesterday = date.today() - timedelta(1)
     yesterday_iso = yesterday.isoformat()
-    bills = pyopenstates.search_bills(state='ms', updated_since=yesterday_iso)
+    bills = pyopenstates.search_bills(state='ms', search_window='session', updated_since=yesterday_iso)
     print(str(len(bills)) + ' bills updated since yesterday')
     i = 0
     for x in bills:
-        record = airtable.match('py_bill_id', x['bill_id'], view='py_2020')
+        record = airtab.match('py_bill_id', x['bill_id'], view='py_2020')
         if record:
             i += 1
             last_action = x['actions'][len(x['actions'])-1]
@@ -96,8 +98,7 @@ def update_3xp_bills():
             this_dict['py_actions_count'] = len(x['actions'])
             this_dict['py_last_action'] = last_action['action']
             this_dict['py_last_action_date'] = last_action['date'][:10]
-            this_dict['updated_at'] = x['updated_at'].isoformat()
-            airtable.update(record['id'], this_dict)
+            airtab.update(record['id'], this_dict)
         else:
             pass
     print(str(i) + ' bills were of interest')
