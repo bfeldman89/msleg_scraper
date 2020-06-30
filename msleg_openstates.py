@@ -6,7 +6,7 @@ from airtable import Airtable
 
 OPENSTATES_API_KEY = 'd1767663-d765-474d-b3ad-98a59eab9b3c'
 pyopenstates.set_api_key(OPENSTATES_API_KEY)
-airtab = Airtable('appw0DSPkfcrhmzmi', 'legislation', os.environ['AIRTABLE_API_KEY'])
+airtab = Airtable('appCAPZgfAobrlVeI', 'legislation', os.environ['AIRTABLE_API_KEY'])
 
 
 def update_3xp_bills_v2():
