@@ -9,7 +9,7 @@ pyopenstates.set_api_key(OPENSTATES_API_KEY)
 airtab = Airtable('appCAPZgfAobrlVeI', 'legislation', os.environ['AIRTABLE_API_KEY'])
 
 
-def update_3xp_bills_v2():
+def update_3xp_bills_v2(quiet=True):
     records = airtab.get_all(view='py_2020')
     for record in records:
         os_data = pyopenstates.get_bill(state='ms', term='2020', bill_id=record['fields']['py_bill_id'])
@@ -19,6 +19,8 @@ def update_3xp_bills_v2():
         this_dict['py_last_action'] = last_action['action']
         this_dict['py_last_action_date'] = last_action['date'][:10]
         airtab.update(record['id'], this_dict)
+        if not quiet:
+            print(record['fields']['py_bill_id'], ': ', this_dict)
         time.sleep(1)
 
 
