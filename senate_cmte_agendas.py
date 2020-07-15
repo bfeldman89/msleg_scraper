@@ -37,11 +37,10 @@ def extract_information():
 
     this_dict['pdf'] = [{"url": url}]
     matching_record = airtab.match('raw_datetime', this_dict['raw_datetime'])
-    new_record = airtab.insert(this_dict, typecast=True)
     if matching_record:
         return
-    else:
-        return new_record['id']
+    new_record = airtab.insert(this_dict, typecast=True)
+    return new_record['id']
 
 
 def get_images():
