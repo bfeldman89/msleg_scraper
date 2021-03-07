@@ -13,7 +13,7 @@ from twython import Twython
 airtab = Airtable(os.environ['msleg_db'], 'cmte_agendas', os.environ['AIRTABLE_API_KEY'])
 tw = Twython(os.environ['TWITTER_APP_KEY'], os.environ['TWITTER_APP_SECRET'],
              os.environ['TWITTER_OAUTH_TOKEN'], os.environ['TWITTER_OAUTH_TOKEN_SECRET'])
-url = 'http://legislature.ms.gov/media/1132/2020_senate_committee_agendas.pdf'
+url = 'http://legislature.ms.gov/media/1151/2021_senate_committee_agendas.pdf'
 
 
 def extract_information():
