@@ -26,17 +26,16 @@ def extract_information():
         this_dict['p1_txt'] = this_pdf.getPage(0).extractText()
     this_dict['author'] = information.get('/Author')
     this_dict['creator'] = information.get('/Creator')
-    this_dict['modification_datetime'] = information.get('/ModDate')
-    this_dict['creation_datetime'] = information.get('/CreationDate')
+    this_dict['modification_datetime'] = information.get('/ModDate').replace('D:', '').replace("'", "")
+    this_dict['creation_datetime'] = information.get('/CreationDate').replace('D:', '').replace("'", "")
     this_dict['producer'] = information.get('/Producer')
 
-    # this_dict['raw_datetime'] = this_dict['p1_txt'].splitlines()[5].strip()
     s = this_dict['p1_txt'].find('Agendas') + 7
     e = this_dict['p1_txt'].find('Please') - 6
     this_dict['raw_datetime'] = this_dict['p1_txt'][s:e].strip().replace('\n', '')
-
     this_dict['pdf'] = [{"url": url}]
-    matching_record = airtab.match('raw_datetime', this_dict['raw_datetime'])
+
+    matching_record = airtab.match('modification_datetime', this_dict['modification_datetime'])
     if matching_record:
         return
     new_record = airtab.insert(this_dict, typecast=True)
@@ -65,11 +64,13 @@ def tweet_with_images(rid, mids):
     for fn in os.listdir('.'):
         send2trash.send2trash(fn)
 
-
-if __name__ == '__main__':
+def main():
     new_rid = extract_information()
     if new_rid:
         media_ids = get_images()
         tweet_with_images(rid=new_rid, mids=media_ids)
     else:
         print('agendas document hasn\'t changed')
+
+if __name__ == '__main__':
+    main()
