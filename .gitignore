@@ -124,3 +124,6 @@ dmypy.json
 
 # images
 *.jpg
+
+# OTHER
+.DS_Store
