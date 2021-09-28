@@ -15,6 +15,7 @@ twython = "*"
 Send2Trash = "*"
 simplediff = "*"
 imgkit = "*"
+documentcloud = "*"
 
 [requires]
 python_version = "3.8"
