@@ -16,6 +16,8 @@ Send2Trash = "*"
 simplediff = "*"
 imgkit = "*"
 documentcloud = "*"
+pyairtable = "*"
+pillow = "*"
 
 [requires]
 python_version = "3.8"
