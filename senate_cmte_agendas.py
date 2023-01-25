@@ -15,13 +15,13 @@ url = 'http://legislature.ms.gov/media/1151/2023_SENATE_COMMITTEE_AGENDAS.pdf'
 
 def extract_information():
     response = requests.get(url)
-    header_mod_time = response.headers['Last-Modified']
-    matching_record = airtab.match('header_mod_time', header_mod_time)
+    this_dict = {}
+    this_dict['url'] = url
+    this_dict['header_mod_time'] = response.headers['Last-Modified']
+    matching_record = airtab.match('header_mod_time', this_dict['header_mod_time'])
     if matching_record:
         print('PDF has not been modified since last scrape')
         return
-    this_dict = {}
-    this_dict['url'] = url
     with io.BytesIO(response.content) as f:
         this_pdf = PdfReader(f)
         this_dict['number_of_pages'] = len(this_pdf.pages)
