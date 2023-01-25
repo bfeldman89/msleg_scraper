@@ -7,20 +7,27 @@ import send2trash
 
 from airtable import Airtable
 from pdf2image import convert_from_bytes
-from PyPDF2 import PdfFileReader
+from PyPDF2 import PdfReader
 from twython import Twython
 
 airtab = Airtable(os.environ['msleg_db'], 'cmte_agendas', os.environ['AIRTABLE_API_KEY'])
 tw = Twython(os.environ['TWITTER_APP_KEY'], os.environ['TWITTER_APP_SECRET'],
              os.environ['TWITTER_OAUTH_TOKEN'], os.environ['TWITTER_OAUTH_TOKEN_SECRET'])
-url = 'http://legislature.ms.gov/media/1151/2021_senate_committee_agendas.pdf'
+# url = 'http://legislature.ms.gov/media/1151/2021_senate_committee_agendas.pdf'
+url = 'http://legislature.ms.gov/media/1151/2023_SENATE_COMMITTEE_AGENDAS.pdf'
 
 
 def extract_information():
     response = requests.get(url)
+    header_mod_time = response.headers['Last-Modified']
+    matching_record = airtab.match('header_mod_time', header_mod_time)
+    if matching_record:
+        print('PDF has not been modified since last scrape')
+        return
     this_dict = {}
+    this_dict['url'] = url
     with io.BytesIO(response.content) as f:
-        this_pdf = PdfFileReader(f)
+        this_pdf = PdfReader(f)
         this_dict['number_of_pages'] = this_pdf.getNumPages()
         information = dict(this_pdf.getDocumentInfo())
         this_dict['p1_txt'] = this_pdf.getPage(0).extractText()
@@ -29,15 +36,10 @@ def extract_information():
     this_dict['modification_datetime'] = information.get('/ModDate').replace('D:', '').replace("'", "")
     this_dict['creation_datetime'] = information.get('/CreationDate').replace('D:', '').replace("'", "")
     this_dict['producer'] = information.get('/Producer')
-
     s = this_dict['p1_txt'].find('Agendas') + 7
     e = this_dict['p1_txt'].find('Please') - 6
     this_dict['raw_datetime'] = this_dict['p1_txt'][s:e].strip().replace('\n', '')
     this_dict['pdf'] = [{"url": url}]
-
-    matching_record = airtab.match('modification_datetime', this_dict['modification_datetime'])
-    if matching_record:
-        return
     new_record = airtab.insert(this_dict, typecast=True)
     return new_record['id']
 
