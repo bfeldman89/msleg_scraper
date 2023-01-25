@@ -28,16 +28,16 @@ def extract_information():
     this_dict['url'] = url
     with io.BytesIO(response.content) as f:
         this_pdf = PdfReader(f)
-        this_dict['number_of_pages'] = this_pdf.getNumPages()
-        information = dict(this_pdf.getDocumentInfo())
-        this_dict['p1_txt'] = this_pdf.getPage(0).extractText()
+        this_dict['number_of_pages'] = len(this_pdf.pages)
+        information = dict(this_pdf.metadata)
+        this_dict['p1_txt'] = this_pdf.pages[0].extract_text()
     this_dict['author'] = information.get('/Author')
     this_dict['creator'] = information.get('/Creator')
     this_dict['modification_datetime'] = information.get('/ModDate').replace('D:', '').replace("'", "")
     this_dict['creation_datetime'] = information.get('/CreationDate').replace('D:', '').replace("'", "")
     this_dict['producer'] = information.get('/Producer')
     s = this_dict['p1_txt'].find('Agendas') + 7
-    e = this_dict['p1_txt'].find('Please') - 6
+    e = this_dict['p1_txt'].find('Meetings in') - 6
     this_dict['raw_datetime'] = this_dict['p1_txt'][s:e].strip().replace('\n', '')
     this_dict['pdf'] = [{"url": url}]
     new_record = airtab.insert(this_dict, typecast=True)
