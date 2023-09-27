@@ -4,15 +4,14 @@ import time
 import pyopenstates
 from airtable import Airtable
 
-OPENSTATES_API_KEY = 'd1767663-d765-474d-b3ad-98a59eab9b3c'
-pyopenstates.set_api_key(OPENSTATES_API_KEY)
+pyopenstates.set_api_key(os.environ['OPENSTATES_API_KEY'])
 airtab = Airtable(os.environ['xxxp_db'], 'legislation', os.environ['AIRTABLE_API_KEY'])
 
 
-def update_3xp_bills_v2(quiet=True):
-    records = airtab.get_all(view='py_2020')
+def update_bills(quiet=True):
+    records = airtab.get_all(view='2023')
     for record in records:
-        os_data = pyopenstates.get_bill(state='ms', term='2020', bill_id=record['fields']['py_bill_id'])
+        os_data = pyopenstates.get_bill(state='ms', session='2023', bill_id=record['fields']['bill_id'])
         last_action = os_data['actions'][len(os_data['actions'])-1]
         this_dict = {}
         this_dict['py_actions_count'] = len(os_data['actions'])
