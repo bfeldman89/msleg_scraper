@@ -5,16 +5,14 @@ from datetime import date, timedelta
 from airtable import Airtable
 import pyopenstates
 
-OPENSTATES_API_KEY = 'd1767663-d765-474d-b3ad-98a59eab9b3c'
-pyopenstates.set_api_key(OPENSTATES_API_KEY)
+pyopenstates.set_api_key(os.environ['OPENSTATES_API_KEY'])
 
 
 def get_bills():
     airtable = Airtable('appxbJoRFBRbGgj4s', 'bills', os.environ['AIRTABLE_API_KEY'])
     yesterday = date.today() - timedelta(1)
     yesterday_iso = yesterday.isoformat()
-    # bills = pyopenstates.search_bills(state='ms', updated_since=yesterday_iso)
-    bills = pyopenstates.search_bills(state='ms', session='2023')
+    bills = pyopenstates.search_bills(state='ms', updated_since=yesterday_iso)
     for bill in bills:
         # record = airtable.match('bill_id', bill['bill_id'])
         record = airtable.match('bill_id', bill['identifier'], view='2023')
@@ -25,10 +23,7 @@ def get_bills():
         this_dict['updated_at'] = str(bill['updated_at'].isoformat())
         this_dict['title'] = bill['title']
         this_dict['session'] = bill['session']
-        # this_dict['type'] = bill['type']
-        # this_dict['chamber'] = bill['chamber']
         # this_dict['documents'] = str(bill['documents'])
-        # this_dict['scraped_subjects'] = bill['scraped_subjects']
         # this_dict['actions'] = str(bill['actions'])
         # this_dict['actions_count'] = len(bill['actions'])
         # last_action = bill['actions'][len(bill['actions'])-1]
