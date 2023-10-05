@@ -6,8 +6,32 @@ from PIL import Image
 import send2trash
 from simplediff import html_diff
 import imgkit
+import tweepy
 
-from common import airtab_msleg as airtab, tw, wrap_from_module
+from common import airtab_msleg as airtab, wrap_from_module
+
+def get_twitter_conn_v1(api_key, api_secret, access_token, access_token_secret) -> tweepy.API:
+    """Get twitter conn 1.1"""
+    auth = tweepy.OAuth1UserHandler(api_key, api_secret)
+    auth.set_access_token(
+        access_token,
+        access_token_secret,
+    )
+    return tweepy.API(auth)
+
+def get_twitter_conn_v2(api_key, api_secret, access_token, access_token_secret) -> tweepy.Client:
+    """Get twitter conn 2.0"""
+    client = tweepy.Client(
+        consumer_key=api_key,
+        consumer_secret=api_secret,
+        access_token=access_token,
+        access_token_secret=access_token_secret,
+    )
+    return client
+
+client_v1 = get_twitter_conn_v1(os.environ['TWITTER_APP_KEY'], os.environ['TWITTER_APP_SECRET'], os.environ['TWITTER_OAUTH_TOKEN'], os.environ['TWITTER_OAUTH_TOKEN_SECRET'])
+client_v2 = get_twitter_conn_v2(os.environ['TWITTER_APP_KEY'], os.environ['TWITTER_APP_SECRET'], os.environ['TWITTER_OAUTH_TOKEN'], os.environ['TWITTER_OAUTH_TOKEN_SECRET'])
+
 
 wrap_it_up = wrap_from_module('msleg_scraper.py')
 
@@ -30,9 +54,10 @@ def get_diff(new_record_id, new_tweet_id):
         </p>
     </body>\n</html >"""
     imgkit.from_string(html_string, diff_fn)
-    with open(diff_fn, 'rb') as diff_pic:
-        res = tw.upload_media(media=diff_pic)
-    tw.update_status(status='cmte. schedule diff', media_ids=res['media_id'], in_reply_to_status_id=new_tweet_id)
+    time.sleep(3)
+    media = client_v1.media_upload(filename=diff_fn)
+    media_id = media.media_id
+    client_v2.create_tweet(text='cmte. schedule diff', media_ids=[media_id], in_reply_to_tweet_id=new_tweet_id)
 
 
 def scrape_cmte_schedules():
@@ -72,11 +97,10 @@ def scrape_cmte_schedules():
             # NOW LETS TWEET IT
             msg = f"The #msleg {this_dict['variable']} was updated on {this_dict['last printed']}"
             outcomes.append(msg)
-            with open(tw_fn, 'rb') as photo:
-                response = tw.upload_media(media=photo)
-            tweet = tw.update_status(status=msg, media_ids=[
-                response['media_id']])
-            this_dict['twitter'] = str(tweet['id'])
+            media = client_v1.media_upload(filename=tw_fn)
+            media_id = media.media_id
+            tweet = client_v2.create_tweet(text=msg, media_ids=[media_id])
+            this_dict['twitter'] = tweet[0]['id']
             new_r = airtab.insert(this_dict)
             send2trash.send2trash(tw_fn)
             # NOW LETS REPLY TWEET THE DIFF
