@@ -127,3 +127,4 @@ dmypy.json
 
 # OTHER
 .DS_Store
+Pipfile.lock
