@@ -6,31 +6,8 @@ from PIL import Image
 import send2trash
 from simplediff import html_diff
 import imgkit
-import tweepy
 
-from common import airtab_msleg as airtab, wrap_from_module
-
-def get_twitter_conn_v1(api_key, api_secret, access_token, access_token_secret) -> tweepy.API:
-    """Get twitter conn 1.1"""
-    auth = tweepy.OAuth1UserHandler(api_key, api_secret)
-    auth.set_access_token(
-        access_token,
-        access_token_secret,
-    )
-    return tweepy.API(auth)
-
-def get_twitter_conn_v2(api_key, api_secret, access_token, access_token_secret) -> tweepy.Client:
-    """Get twitter conn 2.0"""
-    client = tweepy.Client(
-        consumer_key=api_key,
-        consumer_secret=api_secret,
-        access_token=access_token,
-        access_token_secret=access_token_secret,
-    )
-    return client
-
-client_v1 = get_twitter_conn_v1(os.environ['TWITTER_APP_KEY'], os.environ['TWITTER_APP_SECRET'], os.environ['TWITTER_OAUTH_TOKEN'], os.environ['TWITTER_OAUTH_TOKEN_SECRET'])
-client_v2 = get_twitter_conn_v2(os.environ['TWITTER_APP_KEY'], os.environ['TWITTER_APP_SECRET'], os.environ['TWITTER_OAUTH_TOKEN'], os.environ['TWITTER_OAUTH_TOKEN_SECRET'])
+from common import airtab_msleg as airtab, client_v1, client_v2, wrap_from_module
 
 
 wrap_it_up = wrap_from_module('msleg_scraper.py')
@@ -66,7 +43,7 @@ def scrape_cmte_schedules():
     records = airtab.search('status', 'current')
     for record in records:
         this_dict = {}
-        r = requests.get(record['fields']['url'])
+        r = requests.get(record['fields']['url'], timeout=30)
         lines = r.text.splitlines()
         this_dict['last printed'] = lines[3].strip().replace(
             'Printed as of ', '')
