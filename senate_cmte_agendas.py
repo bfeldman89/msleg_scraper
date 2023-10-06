@@ -8,7 +8,7 @@ import send2trash
 from pdf2image import convert_from_bytes
 from PyPDF2 import PdfReader
 
-from common import airtab_agendas as airtab, tw
+from common import airtab_agendas as airtab, client_v1, client_v2
 
 url = 'http://legislature.ms.gov/media/1151/2023_SENATE_COMMITTEE_AGENDAS.pdf'
 
@@ -49,15 +49,18 @@ def get_images():
         this_fn = f'page_{idx + 1}.jpg'
         page.save(this_fn, 'JPEG')
         time.sleep(2)
-        photo = open(this_fn, 'rb')
-        response = tw.upload_media(media=photo)
-        the_media_ids.append(response['media_id'])
+        # photo = open(this_fn, 'rb')
+        media = client_v1.media_upload(filename=this_fn)
+        media_id = media.media_id
+        the_media_ids.append(media_id)
     return the_media_ids
 
 
 def tweet_with_images(rid, mids):
     record = airtab.get(rid)
-    tw.update_status(status=record['fields']['msg'], media_ids=mids)
+    # tw.update_status(status=record['fields']['msg'], media_ids=mids)
+    msg = record['fields']['msg']
+    tweet = client_v2.create_tweet(text=msg, media_ids=mids)
     os.chdir(f"/{os.getenv('HOME')}/code/msleg_scraper/output/agendas")
     for fn in os.listdir('.'):
         send2trash.send2trash(fn)
