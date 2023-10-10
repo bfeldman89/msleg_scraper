@@ -14,7 +14,7 @@ url = 'http://legislature.ms.gov/media/1151/2023_SENATE_COMMITTEE_AGENDAS.pdf'
 
 
 def extract_information():
-    response = requests.get(url)
+    response = requests.get(url, timeout=60)
     this_dict = {}
     this_dict['url'] = url
     this_dict['header_mod_time'] = response.headers['Last-Modified']
@@ -43,7 +43,7 @@ def extract_information():
 def get_images():
     the_media_ids = []
     os.chdir(f"/{os.getenv('HOME')}/code/msleg_scraper/output/agendas")
-    response = requests.get(url)
+    response = requests.get(url, timeout=60)
     pages = convert_from_bytes(response.content)
     for idx, page in enumerate(pages):
         this_fn = f'page_{idx + 1}.jpg'
