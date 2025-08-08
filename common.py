@@ -2,16 +2,16 @@
 """This module provides a function for shipping logs to Airtable."""
 import os
 import time
-from airtable import Airtable
+from pyairtable import Api
 import tweepy
 
-airtab_msleg = Airtable(os.environ['msleg_db'], 'log', os.environ['AIRTABLE_API_KEY'])
+api = Api(os.environ['AIRTABLE_PAT'])
 
-airtab_agendas = Airtable(os.environ['msleg_db'], 'cmte_agendas', os.environ['AIRTABLE_API_KEY'])
+airtab_msleg = api.table(os.environ['msleg_db'], 'log')
 
-airtab_log = Airtable(os.environ['log_db'],
-                      table_name='log',
-                      api_key=os.environ['AIRTABLE_API_KEY'])
+airtab_agendas = api.table(os.environ['msleg_db'], 'cmte_agendas')
+
+airtab_log = api.table(os.environ['log_db'], 'log')
 
 def get_twitter_conn_v1(api_key, api_secret, access_token, access_token_secret) -> tweepy.API:
     """Get twitter conn 1.1"""

@@ -2,14 +2,16 @@
 import os
 import time
 import pyopenstates
-from airtable import Airtable
+from pyairtable import Api
 
 pyopenstates.set_api_key(os.environ['OPENSTATES_API_KEY'])
-airtab = Airtable(os.environ['xxxp_db'], 'legislation', os.environ['AIRTABLE_API_KEY'])
+
+api = Api(os.environ['AIRTABLE_PAT'])
+airtab = api.table(os.environ['xxxp_db'], 'legislation')
 
 
 def update_bills(quiet=True):
-    records = airtab.get_all(view='2023')
+    records = airtab.all(view='2023')
     for record in records:
         os_data = pyopenstates.get_bill(state='ms', session='2023', bill_id=record['fields']['bill_id'])
         last_action = os_data['actions'][len(os_data['actions'])-1]

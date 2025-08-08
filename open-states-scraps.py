@@ -7,8 +7,8 @@ OPENSTATES_API_KEY_4 = '08602c6d-bb0b-4839-900e-b26f2dbc010c'
 pyopenstates.set_api_key(os.environ['OPENSTATES_API_KEY'])
 
 
-airtab = Airtable(os.environ['msleg_db'], 'bills', os.environ['AIRTABLE_API_KEY'])
-records = airtab.get_all(view='2023', fields=['bill_id'])
+airtab = api.table(os.environ['msleg_db'], 'bills')
+records = airtab.all(view='2023', fields=['bill_id'])
 
 def update_bills(quiet=True):
     for record in records:

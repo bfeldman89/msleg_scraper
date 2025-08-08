@@ -2,18 +2,23 @@
 import os
 import time
 from datetime import date, timedelta
-from airtable import Airtable
+from pyairtable import Api
 import pyopenstates
 
 pyopenstates.set_api_key(os.environ['OPENSTATES_API_KEY'])
 
+api_key = os.environ['AIRTABLE_PAT']
+api = Api(AIRTABLE_PAT)
+table = api.table('appGm06z3pp0knK0K', 'bills')
+records = table.all(view='to-scrape', fields=['bill_no'])
+
 def get_ga_bills():
-    airtable = Airtable('appGm06z3pp0knK0K', 'bills', os.environ['AIRTABLE_API_KEY'])
+    airtable = api('appGm06z3pp0knK0K', 'bills')
     records = airtable.get_all(view='to-scrape', fields=['bill_no'])
     def get_ga_bill_deets():
         for record in records:
             try:
-                x = pyopenstates.get_bill(state='ga', session='2023_24', bill_id=record['fields']['bill_no'], include=['sponsorships', 'abstracts'])
+                x = pyopenstates.get_bill(state='ga', session='2025_26', bill_id=record['fields']['bill_no'], include=['sponsorships', 'abstracts'])
                 time.sleep(2)
             except pyopenstates.NotFound as err:
                 print(err)

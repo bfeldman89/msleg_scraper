@@ -2,14 +2,14 @@
 import os
 import time
 from datetime import date, timedelta
-from airtable import Airtable
+from pyairtable import Api
 import pyopenstates
 
 pyopenstates.set_api_key(os.environ['OPENSTATES_API_KEY'])
-
+api = Api(os.environ['AIRTABLE_PAT'])
 
 def get_bills():
-    airtable = Airtable('appxbJoRFBRbGgj4s', 'bills', os.environ['AIRTABLE_API_KEY'])
+    airtable = api('appxbJoRFBRbGgj4s', 'bills')
     yesterday = date.today() - timedelta(1)
     yesterday_iso = yesterday.isoformat()
     bills = pyopenstates.search_bills(state='ms', updated_since=yesterday_iso)
@@ -69,7 +69,7 @@ example bill data from get_bills:
 '''
 
 def get_ppl():
-    airtable = Airtable('appxbJoRFBRbGgj4s', 'legislators', os.environ['AIRTABLE_API_KEY'])
+    airtable = api('appxbJoRFBRbGgj4s', 'legislators)
     this_list = pyopenstates.search_legislators(state='ms', active=False)
     print(len(this_list))
     for legislator in this_list:
@@ -109,7 +109,7 @@ def get_ppl():
 def update_3xp_bills_v1():
     # this is no longer used in `msleg_openstates.py`
     # update_3xp_bills_v2() is more efficient
-    airtab = Airtable('appw0DSPkfcrhmzmi', 'legislation', os.environ['AIRTABLE_API_KEY'])
+    airtab = api('appw0DSPkfcrhmzmi', 'legislation)
     yesterday = date.today() - timedelta(1)
     yesterday_iso = yesterday.isoformat()
     bills = pyopenstates.search_bills(state='ms', search_window='session', updated_since=yesterday_iso)
@@ -131,7 +131,7 @@ def update_3xp_bills_v1():
 
 
 def initial_3xp_scrapes():
-    airtable = Airtable('appw0DSPkfcrhmzmi', 'legislation', os.environ['AIRTABLE_API_KEY'])
+    airtable = api('appw0DSPkfcrhmzmi', 'legislation)
     records = airtable.get_all(view='py_2020 copy', fields=['py_bill_id', 'session', 'date_of_outcome'])
     for record in records:
         try:
@@ -151,7 +151,7 @@ def initial_3xp_scrapes():
 
 
 # def update_3xp_bills_v2():
-airtable = Airtable('appw0DSPkfcrhmzmi', 'legislation', os.environ['AIRTABLE_API_KEY'])
+airtable = api('appw0DSPkfcrhmzmi', 'legislation)
 records = airtable.get_all(view='py_2020 copy', fields=['py_bill_id', 'session'])
 for record in records:
     this_dict = {}
